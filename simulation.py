@@ -36,12 +36,12 @@ class Simulation:
 
 		if simulation_running:
 			self.renderer.Clear()
-			for entity in self.entities:
-				for fixture in entity.body.fixtures:
-					shape = fixture.shape
-					vertices = [(entity.body.transform * v) * self.PPM for v in shape.vertices]
-					vertices = [(v[0], self.height - v[1]) for v in vertices]
-					self.renderer.DrawPolygon(entity.color, vertices)
+			self.renderer.Render(self.entities, self.PPM)
+				# for fixture in entity.body.fixtures:
+				# 	shape = fixture.shape
+				# 	vertices = [(entity.body.transform * v) * self.PPM for v in shape.vertices]
+				# 	vertices = [(v[0], self.height - v[1]) for v in vertices]
+				# 	self.renderer.DrawPolygon(entity.color, vertices)
 
 			self.world.Step(self.delta_T, 10, 10)
 			self.clock.tick(self.FPS)

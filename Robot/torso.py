@@ -1,14 +1,10 @@
-from Box2D.b2 import (world, polygonShape, staticBody, dynamicBody)
 import pygame
-class Ground:
-	def __init__(self, sim_handle):
-		self.body = sim_handle.world.CreateStaticBody(
-						    position=(0, 1),
-						    shapes=polygonShape(box=(50, 1)),
-						)
+class Torso:
+	def __init__(self, sim_handle, position, angle, width, height):
+		self.body = sim_handle.world.CreateDynamicBody(position=position, angle=angle)
+		box = self.body.CreatePolygonFixture(box=(width, height), density=1, friction=0.3)
 
-		self.color = (125, 125, 125)
-
+		self.color = (200, 200, 255)
 
 	def Render(self, screen, PPM):
 		H = screen.get_height()

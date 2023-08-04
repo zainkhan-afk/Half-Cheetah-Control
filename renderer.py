@@ -21,11 +21,11 @@ class Renderer:
 		# Clear the screen with white color
 		self.screen.fill(self.background_color)
 
-	def Render(self, entities):
+	def Render(self, entities, PPM):
 		for entity in entities:
-			entity.Render(self.screen)
-			# Update the display
-			pygame.display.flip()
+			entity.Render(self.screen, PPM)
+		
+		pygame.display.flip()
 
 	def DrawPolygon(self, color, vertices):
 		pygame.draw.polygon(self.screen, color, vertices)

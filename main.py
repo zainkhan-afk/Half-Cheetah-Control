@@ -1,12 +1,12 @@
 import sys
 
 from simulation import Simulation
-from cheetah import Cheetah
+from Robot import Cheetah
 from ground import Ground
 
 
 
-PPM = 20.0  # pixels per meter
+PPM = 50.0  # pixels per meter
 TARGET_FPS = 60
 TIME_STEP = 1.0 / TARGET_FPS
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
