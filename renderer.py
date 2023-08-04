@@ -3,7 +3,7 @@ import sys
 
 class Renderer:
 	def __init__(self, width, height):
-		self.background_color = (255, 255, 255)
+		self.background_color = (0, 0, 0)
 
 		self.screen = pygame.display.set_mode((width, height))
 		pygame.display.set_caption("Rectangle Drawing")
@@ -21,7 +21,12 @@ class Renderer:
 		# Clear the screen with white color
 		self.screen.fill(self.background_color)
 
-	def Render(self, entity):
-		entity.Render(self.screen)
-		# Update the display
+	def Render(self, entities):
+		for entity in entities:
+			entity.Render(self.screen)
+			# Update the display
+			pygame.display.flip()
+
+	def DrawPolygon(self, color, vertices):
+		pygame.draw.polygon(self.screen, color, vertices)
 		pygame.display.flip()

@@ -3,18 +3,8 @@ import pygame
 from utils import *
 
 class Cheetah:
-	def __init__(self, position = (0, 0), rotation = 0):
-		self.points =   np.array([
-									[-50, -20],
-									[ 50, -20],
-									[ 50,  20],
-									[-50,  20]
-								]).T
+	def __init__(self, sim_handle, position = (0, 0), angle = 0):
+		self.body = sim_handle.world.CreateDynamicBody(position=position, angle=angle)
+		box = self.body.CreatePolygonFixture(box=(2, 1), density=1, friction=0.3)
 
-		R = GetRotationMatrix(rotation)
-		self.points = R@self.points + np.array([[position[0], position[1]]]).T
-
-		self.color = (0, 0, 255)
-
-	def Render(self, screen):
-		pygame.draw.lines(screen, self.color, True, self.points.T)
+		self.color = (200, 200, 255)
