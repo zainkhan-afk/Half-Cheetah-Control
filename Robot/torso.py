@@ -3,7 +3,8 @@ from Box2D import b2Filter
 class Torso:
 	def __init__(self, sim_handle, position, angle, width, height, group_index):
 		self.body = sim_handle.world.CreateDynamicBody(position=position, angle=angle)
-		box = self.body.CreatePolygonFixture(box=(width, height), density=1, friction=0.3, filter = b2Filter(groupIndex=group_index))
+		box = self.body.CreatePolygonFixture(box=(width, height), density=10, friction=0.3, filter = b2Filter(groupIndex=group_index))
+		print(self.body.mass)
 
 		self.color = (200, 200, 255)
 
