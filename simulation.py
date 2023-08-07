@@ -4,6 +4,7 @@ import pygame
 import Box2D
 from Box2D.b2 import (world, polygonShape, staticBody, dynamicBody)
 
+
 class Simulation:
 	def __init__(self, width = 640, height = 480, delta_T = 0.1, PPM = 20, FPS = 60):
 		self.entities = []

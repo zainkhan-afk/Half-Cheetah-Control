@@ -12,7 +12,7 @@ TIME_STEP = 1.0 / TARGET_FPS
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
 
 sim = Simulation(width = SCREEN_WIDTH, height = SCREEN_HEIGHT, delta_T = TIME_STEP, PPM = PPM, FPS = TARGET_FPS)
-cheetah = Cheetah(sim, position = (2.5, 5), angle  = 0)
+cheetah = Cheetah(sim, position = (2.5, 3), angle  = 0)
 ground = Ground(sim)
 
 sim.AddEntity(cheetah)
@@ -21,6 +21,7 @@ sim.AddEntity(ground)
 while True:
 	# ret = sim.Render()
 
+	cheetah.StandUp()
 	ret = sim.Step()
 	if not ret:
 		sys.exit()
