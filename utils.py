@@ -15,3 +15,7 @@ def GetTransformationMatrix(theta, x, y):
 	T = np.append(T, np.array([[0, 0, 1]]), axis = 0)
 
 	return T
+
+
+def GetInverseMatrix(M):
+	return np.linalg.inv(M)

@@ -3,15 +3,20 @@ import numpy as np
 from .torso import Torso
 from .legSegment import LegSegment
 from .leg import Leg
+from .kinematics import BodyKinematics
 
 class Cheetah:
 	def __init__(self, sim_handle, position = (0, 0), angle = 0):
-
 		self.torso_width = 0.5
 		self.torso_height = 0.1
 
 		self.leg_width = 0.01
 		self.leg_segment_length = 0.2
+
+		self.body_angle = 0
+
+		self.leg_hind_pos = (- self.torso_width, 0)
+		self.leg_front_pos = ( self.torso_width, 0)
 
 		self.front_leg_thigh_joint_pos = (position[0] + self.torso_width, position[1])
 		self.hind_leg_thigh_joint_pos  = (position[0] - self.torso_width, position[1])
@@ -71,9 +76,21 @@ class Cheetah:
 		self.leg_front = Leg(self.front_thigh_joint, self.front_shin_joint, self.leg_segment_length)
 		self.leg_hind = Leg(self.hind_thigh_joint, self.hind_shin_joint, self.leg_segment_length)
 
+		self.body_kine_model = BodyKinematics(self.leg_hind_pos, self.leg_front_pos)
+
 	def StandUp(self, height = 0.3):
-		self.leg_front.MoveTo(x = 0, y = -height)
-		self.leg_hind.MoveTo(x = 0, y = -height)
+		positions = np.array([
+								[0, -height, 1],
+								[0, -height, 1]
+							])
+
+		positions = self.body_kine_model.IK(positions, self.body_angle)
+
+		print(self.body_angle)
+
+		self.leg_front.MoveTo(positions[0, :])
+		self.leg_hind.MoveTo( positions[1, :])
+
 
 	def Render(self, screen, PPM):
 		self.torso.Render(screen, PPM)

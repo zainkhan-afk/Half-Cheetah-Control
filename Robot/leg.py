@@ -1,4 +1,4 @@
-from .kinematics import Kinematics
+from .kinematics import LegKinematics
 from .jointController import JointController
 
 class Leg:
@@ -9,9 +9,9 @@ class Leg:
 		self.thigh_joint_controller = JointController(self.thigh_joint)
 		self.shin_joint_controller = JointController(self.shin_joint)
 
-		self.kine_model = Kinematics(leg_segment_length, leg_segment_length)
+		self.leg_kine_model = LegKinematics(leg_segment_length, leg_segment_length)
 
-	def MoveTo(self, x, y):
-		theta_1, theta_2 = self.kine_model.IK(x, y)
+	def MoveTo(self, position):
+		theta_1, theta_2 = self.leg_kine_model.IK(position)
 		self.thigh_joint_controller.SetAngle(theta_1)
 		self.shin_joint_controller.SetAngle(theta_2)

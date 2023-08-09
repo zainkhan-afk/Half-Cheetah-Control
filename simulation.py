@@ -17,7 +17,7 @@ class Simulation:
 
 		self.clock = pygame.time.Clock()
 		self.renderer = Renderer(width, height)
-		self.world = world(gravity=(0, -10), doSleep=True)
+		self.world = world(gravity=(0, -9.8), doSleep=True)
 
 	def AddEntity(self, entity):
 		self.entities.append(entity)
