@@ -86,8 +86,6 @@ class Cheetah:
 
 		positions = self.body_kine_model.IK(positions, self.body_angle)
 
-		print(self.body_angle)
-
 		self.leg_front.MoveTo(positions[0, :])
 		self.leg_hind.MoveTo( positions[1, :])
 

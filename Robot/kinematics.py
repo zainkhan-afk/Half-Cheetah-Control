@@ -32,6 +32,16 @@ class LegKinematics:
 
 		return np.pi/2 + theta_1, theta_2
 
+	def GetJacobian(self, theta_1, theta_2):
+		theta_1 = theta_1 - np.pi/2
+
+		J = np.array([
+					[- self.l1*np.sin(theta_1) - self.l2*np.sin(theta_1 + theta_2), -self.l2*np.sin(theta_1 + theta_2)],
+					[  self.l1*np.cos(theta_1) + self.l2*np.cos(theta_1 + theta_2),  self.l2*np.sin(theta_1 + theta_2)]
+					])
+
+		return J
+
 
 class BodyKinematics:
 	def __init__(self, leg_hind_pos, leg_front_pos):
@@ -42,14 +52,15 @@ class BodyKinematics:
 		i = 0
 		for position in positions:
 			if i == 0:
-				x, y = self.leg_hind_pos
+				x, y = self.leg_front_pos
 				p_leg = np.array([[x, y, 1]])
 			else:
-				x, y = self.leg_front_pos
+				x, y = self.leg_hind_pos
 				p_leg = np.array([[x, y, 1]])
 
 			T_body_leg = GetTransformationMatrix(theta, x, y)
-			R_body = GetTransformationMatrix(theta, 0, 0)
+			# T_body_leg = GetInverseMatrix(T_body_leg)
+			R_body = GetTransformationMatrix(-theta, 0, 0)
 
 			p_leg = R_body@p_leg.T
 
