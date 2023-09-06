@@ -5,6 +5,8 @@ from .legSegment import LegSegment
 from .leg import Leg
 from .kinematics import BodyKinematics
 
+from .Dynamics import QuadrupedDynamics
+
 class Cheetah:
 	def __init__(self, sim_handle, position = (0, 0), angle = 0):
 		self.torso_width = 0.5
@@ -77,6 +79,18 @@ class Cheetah:
 		self.leg_hind = Leg(self.hind_thigh_joint, self.hind_shin_joint, self.leg_segment_length)
 
 		self.body_kine_model = BodyKinematics(self.leg_hind_pos, self.leg_front_pos)
+		self.dynamics = self.SetUpRobotDynamics()
+
+		self.dynamics.CalculateCompositeRigidBodyInertia()
+
+	def SetUpRobotDynamics(self):
+		floating_body_pos = np.array([self.torso.body.position[0], self.torso.body.position[1]])
+
+		dynamics = QuadrupedDynamics(self.torso)
+		dynamics.AddLeg("front", self.thigh_front, self.shin_front)
+		dynamics.AddLeg("hind", self.thigh_hind, self.shin_hind)
+
+		return dynamics
 
 	def StandUp(self, height = 0.3):
 		positions = np.array([
@@ -85,6 +99,9 @@ class Cheetah:
 							])
 
 		positions = self.body_kine_model.IK(positions, self.body_angle)
+		self.dynamics.CalculateCompositeRigidBodyInertia()
+		M = self.dynamics.GetMassMatrix()
+		# print(f"Not Real: {round(self.body_angle*180/np.pi, 2)} - Real Angle: {round(self.torso.body.angle*180/np.pi, 2)}")
 
 		self.leg_front.MoveTo(positions[0, :])
 		self.leg_hind.MoveTo( positions[1, :])

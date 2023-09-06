@@ -22,11 +22,11 @@ sim.AddEntity(ground)
 ang = 0
 while True:
 	cheetah.StandUp()
-	cheetah.body_angle = np.pi/36*np.sin(ang)
+	# cheetah.body_angle = np.pi/36*np.sin(ang)
 
 
 	ret = sim.Step()
 	if not ret:
 		sys.exit()
 
-	ang += 0.001
+	ang += 0.0001

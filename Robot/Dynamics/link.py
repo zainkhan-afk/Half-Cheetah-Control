@@ -1,17 +1,25 @@
-class Link:
-	def __init__(self, mass, length, height):
-		self.mass = mass
-		self.length = length
-		self.height = height
-		self.I = []
+import numpy as np
 
-	def CalculateMassMatrix(self):
-		Iz = 1/3 * self.mass * (self.length**2 + self.height**2)
-		Ixx = 1/12 * self.mass * (self.length**2 + self.height**2)
-		Iyy = Ixx
+class Link:
+	def __init__(self, link_object):
+		self.link_object = link_object
+		self.I = None
+
+		self.CalculateSpatialInertia()
+
+	def CalculateSpatialInertia(self):
+		self.Inertia = 1/12 * self.link_object.body.mass * (self.link_object.width**2 + self.link_object.height**2)
 
 		self.I = np.array([
-						[Ixx,   0,  0],
-						[  0, Iyy,  0],
-						[  0,   0, Iz]
+						[self.link_object.body.mass,   						  0,  							  0],
+						[  		 				  0, self.link_object.body.mass,  							  0],
+						[ 		 				  0,   						  0,  self.link_object.body.inertia]
 						])
+
+
+	def GetSpatialInertia(self):
+		return self.I
+
+
+	def GetTransform(self):
+		return self.link_object.GetTransform()
