@@ -11,7 +11,7 @@ class LegKinematics:
 		x = self.l2*np.cos(theta_1 + theta_2) + self.l1*np.cos(theta_1)
 		y = self.l2*np.sin(theta_1 + theta_2) + self.l1*np.sin(theta_1)
 
-		return x, y
+		return np.array([[x, y]]).T
 
 
 	def IK(self, position):
@@ -76,9 +76,11 @@ class BodyKinematics:
 
 		return positions
 
-	def GetJacobian(self, ee_pos_1, ee_pos_2, contact_mask = [1, 1]):
+	def GetJacobian(self, ee_pos_front, ee_pos_hind, contact_mask = [1, 1]):
 		J = np.array([
-						[],
+						[			  1, 			  0, 			  1, 			 0],
+						[			  0, 			  1, 			  0, 			 1],
+						[ee_pos_front[0, 0], ee_pos_front[1, 0], ee_pos_hind[0, 0], ee_pos_hind[1, 0]]
 					])
 
 		return J

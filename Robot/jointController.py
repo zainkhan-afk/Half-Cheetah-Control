@@ -16,10 +16,15 @@ class JointController:
 
 		val = self.P*error + self.D*(error - self.prev_error) + self.I*self.error_sum
 
+		# print(self.joint.motorSpeed, self.joint.speed)
+
 		self.joint.motorSpeed = val
 
 		self.prev_error = error
 		self.error_sum += error
+
+	def SetVelocity(self, velocity):
+		self.joint.motorSpeed = velocity
 
 	def GetAngle(self):
 		return self.joint.angle 

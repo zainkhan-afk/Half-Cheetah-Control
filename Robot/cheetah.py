@@ -7,6 +7,8 @@ from .kinematics import BodyKinematics
 
 from .Dynamics import QuadrupedDynamics
 
+from utils import AlmostEqual
+
 class Cheetah:
 	def __init__(self, sim_handle, position = (0, 0), angle = 0):
 		self.torso_width = 0.5
@@ -83,28 +85,57 @@ class Cheetah:
 
 		self.dynamics.CalculateCompositeRigidBodyInertia()
 
+		self.old_torques = np.zeros((4, 1))
+
 	def SetUpRobotDynamics(self):
 		floating_body_pos = np.array([self.torso.body.position[0], self.torso.body.position[1]])
 
 		dynamics = QuadrupedDynamics(self.torso)
-		dynamics.AddLeg("front", self.thigh_front, self.shin_front)
-		dynamics.AddLeg("hind", self.thigh_hind, self.shin_hind)
+		dynamics.AddLeg("front", self.thigh_front, self.shin_front, self.front_thigh_joint, self.front_shin_joint)
+		dynamics.AddLeg("hind", self.thigh_hind, self.shin_hind, self.hind_thigh_joint, self.hind_shin_joint)
 
 		return dynamics
 
 	def StandUp(self, height = 0.3):
+		self.dynamics.CalculateCompositeRigidBodyInertia()
+
+		jacobian = np.zeros((7, 4))
+
+		front_ee_pos = self.leg_front.GetEEFKPosition()
+		hind_ee_pos  = self.leg_front.GetEEFKPosition()
+
+		front_J = self.leg_front.GetJacobian()
+		hind_J  = self.leg_front.GetJacobian()
+
+		body_J  = self.body_kine_model.GetJacobian(front_ee_pos, hind_ee_pos)
+
+		jacobian[:3,   :]   = body_J
+		jacobian[3:5, :2]   = front_J
+		jacobian[5: , 2:]   = hind_J
+
+		forces = np.array([[0, -100, 0, -100]]).T
+
+		theta_double_dot, self.old_torques = self.dynamics.ForwardDynamics(forces, jacobian, old_torques = self.old_torques)
+
+		acc_front = [theta_double_dot[3, 0], theta_double_dot[4, 0]]
+		acc_hind  = [theta_double_dot[5, 0], theta_double_dot[6, 0]]
+
+		self.leg_front.MoveToAcc(acc_front)
+		self.leg_hind.MoveToAcc(acc_hind)
+
+	def Rest(self, height = 0.1):
 		positions = np.array([
 								[0, -height, 1],
 								[0, -height, 1]
 							])
 
 		positions = self.body_kine_model.IK(positions, self.body_angle)
-		self.dynamics.CalculateCompositeRigidBodyInertia()
-		M = self.dynamics.GetMassMatrix()
-		# print(f"Not Real: {round(self.body_angle*180/np.pi, 2)} - Real Angle: {round(self.torso.body.angle*180/np.pi, 2)}")
-
+		
 		self.leg_front.MoveTo(positions[0, :])
 		self.leg_hind.MoveTo( positions[1, :])
+
+		desired_pos_leg_front = np.array([[positions[0, 0], positions[0, 1]]]).T
+		return AlmostEqual(desired_pos_leg_front, self.leg_front.GetEEFKPosition())
 
 
 	def Render(self, screen, PPM):

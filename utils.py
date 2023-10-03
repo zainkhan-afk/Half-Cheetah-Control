@@ -19,3 +19,15 @@ def GetTransformationMatrix(theta, x, y):
 
 def GetInverseMatrix(M):
 	return np.linalg.inv(M)
+
+def AlmostEqual(p1, p2, thresh = 1e-4):
+	d = np.sqrt((p1[0, 0] - p2[0, 0])**2 + (p1[1, 0] - p2[1, 0])**2)
+
+	if d<thresh:
+		return True
+	else:
+		return False
+
+
+gravity = -9.8
+TIME_STEP = 0.001
