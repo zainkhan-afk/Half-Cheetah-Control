@@ -12,6 +12,9 @@ class Leg:
 
 		self.leg_kine_model = LegKinematics(leg_segment_length, leg_segment_length)
 
+	def GetAngles(self):
+		return self.thigh_joint.angle, self.shin_joint.angle
+
 	def GetJacobian(self):
 		return self.leg_kine_model.GetJacobian(self.thigh_joint.angle, self.shin_joint.angle)
 

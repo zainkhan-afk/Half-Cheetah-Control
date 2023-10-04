@@ -1,16 +1,18 @@
 import pygame
 import numpy as np
+from utils import AlmostEqual
+
 from .torso import Torso
 from .legSegment import LegSegment
 from .leg import Leg
 from .kinematics import BodyKinematics
+from .state import State
 
 from .Dynamics import QuadrupedDynamics
 
-from utils import AlmostEqual
 
 class Cheetah:
-	def __init__(self, sim_handle, position = (0, 0), angle = 0):
+	def __init__(self, sim_handle, position = np.array([0, 0]), angle = 0):
 		self.torso_width = 0.5
 		self.torso_height = 0.1
 
@@ -86,6 +88,17 @@ class Cheetah:
 		self.dynamics.CalculateCompositeRigidBodyInertia()
 
 		self.old_torques = np.zeros((4, 1))
+
+
+		hind_theta_thigh, hind_theta_shin = self.leg_hind.GetAngles()
+		front_theta_thigh, front_theta_shin = self.leg_front.GetAngles()
+		
+		self.state = State(position, np.array([0, 0]), np.array([0, 0]),
+							angle, 0, 0,
+							np.array([hind_theta_thigh, hind_theta_shin, front_theta_thigh, front_theta_shin]), 
+							np.array([0, 0, 0, 0]), np.array([0, 0, 0, 0]))
+
+		print(self.state)
 
 	def SetUpRobotDynamics(self):
 		floating_body_pos = np.array([self.torso.body.position[0], self.torso.body.position[1]])
