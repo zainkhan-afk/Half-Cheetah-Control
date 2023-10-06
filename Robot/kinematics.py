@@ -31,6 +31,7 @@ class LegKinematics:
 		theta_1 = np.arctan2(y, x) - np.arctan2((self.l2*np.sin(theta_2)), (self.l1 + self.l2*np.cos(theta_2)))
 
 		return np.pi/2 + theta_1, theta_2
+		# return theta_1, theta_2
 
 	def GetJacobian(self, theta_1, theta_2):
 		theta_1 = theta_1 - np.pi/2

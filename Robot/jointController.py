@@ -7,7 +7,7 @@ class JointController:
 		self.current_angle = self.joint.angle 
 
 		self.P = 10
-		self.I = 0.1
+		self.I = 0
 		self.D = 2
 
 		self.prev_error = 0
