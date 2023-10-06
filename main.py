@@ -33,12 +33,24 @@ while not robot_placed:
 	if not ret:
 		sys.exit()
 
+print("Reached Rest Position")
+cheetah.UpdateState()
+cheetah.UpdateState()
+cheetah.UpdateState()
+print("State Updated")
+
+print(f"Applying Force: {force}")
+
+ctr = 0
 while True:
+	print(ctr)
 	# cheetah.StandUp()
 	cheetah.ApplyForceToLegs(force)
 	# cheetah.body_angle = np.pi/36*np.sin(ang)
+	ctr += 1
 
-
+	if ctr >= 1000:
+		break
 	ret = sim.Step()
 	if not ret:
 		sys.exit()

@@ -101,6 +101,8 @@ class State:
 
 	def __str__(self):
 		return f'''
+	===================================================================
+	State:
 		Body:
 			Translation:
 				Position: {self.position[0], self.position[1]}

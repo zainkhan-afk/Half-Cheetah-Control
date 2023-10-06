@@ -29,5 +29,5 @@ def AlmostEqual(p1, p2, thresh = 1e-4):
 		return False
 
 
-gravity = -9.8
-TIME_STEP = 0.001
+gravity = -10
+TIME_STEP = 0.0025

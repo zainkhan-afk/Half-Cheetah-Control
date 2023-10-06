@@ -6,7 +6,7 @@ class Torso:
 		self.body = sim_handle.world.CreateDynamicBody(position=position, angle=angle)
 		self.height = height
 		self.width = width
-		box = self.body.CreatePolygonFixture(box=(width, height), density=5, friction=0.3, filter = b2Filter(groupIndex=group_index))
+		box = self.body.CreatePolygonFixture(box=(width, height), density=15, friction=0.3, filter = b2Filter(groupIndex=group_index))
 		print(self.body.mass)
 
 		self.color = (200, 200, 255)

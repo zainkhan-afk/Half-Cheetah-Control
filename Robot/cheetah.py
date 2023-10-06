@@ -98,7 +98,6 @@ class Cheetah:
 							np.array([hind_theta_thigh, hind_theta_shin, front_theta_thigh, front_theta_shin]), 
 							np.array([0, 0, 0, 0]), np.array([0, 0, 0, 0]))
 
-		print(self.state)
 
 	def SetUpRobotDynamics(self):
 		floating_body_pos = np.array([self.torso.body.position[0], self.torso.body.position[1]])
@@ -124,9 +123,10 @@ class Cheetah:
 		self.leg_hind.MoveTo( positions[1, :])
 
 		desired_pos_leg_front = np.array([[positions[0, 0], positions[0, 1]]]).T
-		return AlmostEqual(desired_pos_leg_front, self.leg_front.GetEEFKPosition())
 
-	def ApplyForceToLegs(self, force):
+		self.leg_hind.MoveTo( positions[0, :])
+		self.leg_front.MoveTo(positions[1, :])
+
 		hind_theta_thigh, hind_theta_shin = self.leg_hind.GetAngles()
 		front_theta_thigh, front_theta_shin = self.leg_front.GetAngles()
 
@@ -139,7 +139,38 @@ class Cheetah:
 		self.state = self.state.UpdateUsingPosition(body_position)
 		self.state = self.state.UpdateUsingBodyTheta(body_angle)
 
+		return AlmostEqual(desired_pos_leg_front, self.leg_front.GetEEFKPosition())
+
+	def UpdateState(self):
+		hind_theta_thigh, hind_theta_shin = self.leg_hind.GetAngles()
+		front_theta_thigh, front_theta_shin = self.leg_front.GetAngles()
+
+		body_position = self.torso.GetPosition()
+		body_angle = self.torso.body.angle
+
+		body_position = np.array([body_position[0], body_position[1]])
+
+		self.state = self.state.UpdateUsingJointTheta(np.array([hind_theta_thigh, hind_theta_shin, front_theta_thigh, front_theta_shin]))
+		self.state = self.state.UpdateUsingPosition(body_position)
+		self.state = self.state.UpdateUsingBodyTheta(body_angle)
+
+		print(self.state)
+
+	def ApplyForceToLegs(self, forces):
 		self.dynamics.CalculateCompositeRigidBodyInertia()
+
+		hind_theta_thigh, hind_theta_shin = self.leg_hind.GetAngles()
+		front_theta_thigh, front_theta_shin = self.leg_front.GetAngles()
+
+		body_position = self.torso.GetPosition()
+		body_angle = self.torso.body.angle
+
+		body_position = np.array([body_position[0], body_position[1]])
+
+		self.state = self.state.UpdateUsingJointTheta(np.array([hind_theta_thigh, hind_theta_shin, front_theta_thigh, front_theta_shin]))
+		self.state = self.state.UpdateUsingPosition(body_position)
+		self.state = self.state.UpdateUsingBodyTheta(body_angle)
+
 
 		jacobian = np.zeros((7, 4))
 
@@ -154,8 +185,6 @@ class Cheetah:
 		jacobian[:3,   :]   = body_J
 		jacobian[3:5, :2]   = hind_J
 		jacobian[5: , 2:]   = front_J
-
-		forces = np.array([[0, -100, 0, -100]]).T
 
 		theta_double_dot, self.old_torques = self.dynamics.ForwardDynamics(forces, jacobian, self.state)
 
@@ -176,6 +205,7 @@ class Cheetah:
 		self.leg_front.SetAngles(front_leg_theta)
 
 		print(self.state)
+
 
 
 	def Render(self, screen, PPM):

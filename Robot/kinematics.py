@@ -37,8 +37,9 @@ class LegKinematics:
 
 		J = np.array([
 					[- self.l1*np.sin(theta_1) - self.l2*np.sin(theta_1 + theta_2), -self.l2*np.sin(theta_1 + theta_2)],
-					[  self.l1*np.cos(theta_1) + self.l2*np.cos(theta_1 + theta_2),  self.l2*np.sin(theta_1 + theta_2)]
-					])
+					[  self.l1*np.cos(theta_1) + self.l2*np.cos(theta_1 + theta_2),  self.l2*np.cos(theta_1 + theta_2)]
+					]) # J_wrt_0
+
 
 		return J
 

@@ -15,7 +15,6 @@ class Leg:
 		else:
 			self.leg_index = 2
 
-
 		self.m1 = self.thigh_segment.body.mass
 		self.m2 = self.shin_segment.body.mass
 
