@@ -12,7 +12,7 @@ from .Dynamics import QuadrupedDynamics
 
 
 class Cheetah:
-	def __init__(self, sim_handle, position = np.array([0, 0]), angle = 0):
+	def __init__(self, sim_handle, ground, position = np.array([0, 0]), angle = 0):
 		self.torso_width = 0.5
 		self.torso_height = 0.1
 
@@ -41,6 +41,15 @@ class Cheetah:
 
 		self.shin_front = LegSegment(sim_handle, self.front_leg_shin_pos, angle, self.leg_width, self.leg_segment_length, group_index = -1)
 		self.shin_hind = LegSegment(sim_handle, self.hind_leg_shin_pos, angle, self.leg_width, self.leg_segment_length, group_index = -1)
+
+		self.body_world_joint = sim_handle.world.CreateRevoluteJoint(
+									bodyA = ground.body,
+									bodyB = self.torso.body,
+									anchor = position,
+									maxMotorTorque = 10000.0,
+									motorSpeed = 0.0,
+									enableMotor = True,
+									)
 
 		self.front_thigh_joint = sim_handle.world.CreateRevoluteJoint(
 									bodyA = self.torso.body,
@@ -85,7 +94,7 @@ class Cheetah:
 		self.body_kine_model = BodyKinematics(self.leg_hind_pos, self.leg_front_pos)
 		self.dynamics = self.SetUpRobotDynamics()
 
-		self.dynamics.CalculateCompositeRigidBodyInertia()
+		self.dynamics.CalculateCompositeRigidBodyInertiaWRTFloatingBase()
 
 		self.old_torques = np.zeros((4, 1))
 
@@ -157,7 +166,7 @@ class Cheetah:
 		print(self.state)
 
 	def ApplyForceToLegs(self, forces):
-		self.dynamics.CalculateCompositeRigidBodyInertia()
+		self.dynamics.CalculateCompositeRigidBodyInertiaWRTFloatingBase()
 
 		hind_theta_thigh, hind_theta_shin = self.leg_hind.GetAngles()
 		front_theta_thigh, front_theta_shin = self.leg_front.GetAngles()
@@ -185,17 +194,25 @@ class Cheetah:
 
 		world_T_COM = GetTransformationMatrix(self.state.body_theta, self.state.position[0], self.state.position[1])
 
-		world_T_hind_ee = world_T_COM@COM_T_hind_base@hind_base_T_hind_ee
-		world_T_front_ee = world_T_COM@COM_T_front_base@front_base_T_front_ee
 
-		hind_ee_pos_wrt_world = np.array([[world_T_hind_ee[0, 0], world_T_hind_ee[0, 1]]]).T
-		front_ee_pos_wrt_world = np.array([[world_T_front_ee[0, 0], world_T_front_ee[0, 1]]]).T
+		COM_T_hind_ee = COM_T_hind_base@hind_base_T_hind_ee
+		COM_T_front_ee = COM_T_front_base@front_base_T_front_ee
 
+		world_T_hind_ee = world_T_COM@COM_T_hind_ee
+		world_T_front_ee = world_T_COM@COM_T_front_ee
+
+		hind_ee_pos_wrt_world = np.array([[world_T_hind_ee[0, -1], world_T_hind_ee[1, -1]]]).T
+		front_ee_pos_wrt_world = np.array([[world_T_front_ee[0, -1], world_T_front_ee[1, -1]]]).T
+
+		hind_ee_pos_wrt_FB = np.array([[COM_T_hind_ee[0, -1], COM_T_hind_ee[1, -1]]]).T
+		front_ee_pos_wrt_FB = np.array([[COM_T_front_ee[0, -1], COM_T_front_ee[1, -1]]]).T
+
+		# print(hind_ee_pos_wrt_FB.ravel(), front_ee_pos_wrt_FB.ravel())
 
 		hind_J  = self.leg_hind.GetJacobian()
 		front_J = self.leg_front.GetJacobian()
 
-		body_J  = self.body_kine_model.GetJacobian(hind_ee_pos_wrt_world, front_ee_pos_wrt_world)
+		body_J  = self.body_kine_model.GetJacobian(hind_ee_pos_wrt_FB, front_ee_pos_wrt_FB)
 
 		jacobian[:3,   :]   = body_J
 		jacobian[3:5, :2]   = hind_J

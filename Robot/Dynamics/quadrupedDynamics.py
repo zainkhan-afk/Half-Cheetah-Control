@@ -25,13 +25,23 @@ class QuadrupedDynamics:
 		link = LegSegment(link_object)
 		self.links.append(link)
 
-	def CalculateCompositeRigidBodyInertia(self):
+	def CalculateCompositeRigidBodyInertiaWRTWorld(self):
 		self.composite_inertia = np.zeros((3, 3))
 		
 		for link in self.links:
-			self.composite_inertia += link.GetTransform()@link.GetSpatialInertia()@link.GetTransform().T
+			world_T_link = link.GetTransform()
+			self.composite_inertia += world_T_link@link.GetSpatialInertia()@(world_T_link.T)
 
-		# print(self.composite_inertia)
+	def CalculateCompositeRigidBodyInertiaWRTFloatingBase(self):
+		world_T_FB = self.links[0].GetTransform()
+		FB_T_world = GetInverseMatrix(world_T_FB)
+		
+		self.composite_inertia = np.zeros((3, 3))
+		
+		for link in self.links:
+			world_T_link = link.GetTransform()
+			FB_T_link = FB_T_world@world_T_link
+			self.composite_inertia += FB_T_link@link.GetSpatialInertia()@(FB_T_link.T)
 
 	def GetCompositeInertia(self):
 		return self.composite_inertia
@@ -73,7 +83,7 @@ class QuadrupedDynamics:
 
 		M_inv = GetInverseMatrix(M)
 
-		theta_double_dot = M_inv@(selection_vector + resultant_torques - C - G)
+		theta_double_dot = M_inv@(resultant_torques - C - G)
 
 		# print(theta_double_dot)
 		# print(selection_vector)
