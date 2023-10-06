@@ -44,23 +44,36 @@ class QuadrupedDynamics:
 		selection_vector = np.zeros((7, 1))
 		selection_vector[3: ] = old_torques
 
-		EE_front = np.array([[jacobian[2, 0], jacobian[2, 1]]])
-		EE_hind  = np.array([[jacobian[2, 2], jacobian[2, 3]]])
+		jacobian_legs = jacobian[3:, :]
+		jacobian_body = jacobian[:3, :]
 
-		f_front = np.array([[forces[0, 0], forces[1, 0]]]).T
-		f_hind  = np.array([[forces[2, 0], forces[3, 0]]]).T
+		EE_hind = np.array([[jacobian_body[2, 0], jacobian_body[2, 1]]])
+		EE_front  = np.array([[jacobian_body[2, 2], jacobian_body[2, 3]]])
 
-		torque_from_front = EE_front@f_front
+		f_hind = np.array([[forces[0, 0], forces[1, 0]]]).T
+		f_front  = np.array([[forces[2, 0], forces[3, 0]]]).T
+
 		torque_from_hind  = EE_hind@f_hind
+		torque_from_front = EE_front@f_front
 
-		jacobian_force_result       = jacobian@forces
-		jacobian_force_result[2, 0] = torque_from_front - torque_from_hind
+		forces_body = jacobian_body@forces
+		torque_legs = jacobian_legs.T@forces
 
-		joint_torques = jacobian_force_result[3:, :]
+		resultant_torques = np.zeros((7, 1))
+		resultant_torques[:3, :] = forces_body
+		resultant_torques[3:, :] = torque_legs
+
+		# print(torque_from_front + torque_from_hind)
+		# print(resultant_torques)
+
+		# jacobian_force_result_legs       = jacobian_legs.T@forces
+		# jacobian_force_result[2, 0] = torque_from_front + torque_from_hind
+
+		joint_torques = resultant_torques[3:, :]
 
 		M_inv = GetInverseMatrix(M)
 
-		theta_double_dot = M_inv@(selection_vector + jacobian_force_result - C - G)
+		theta_double_dot = M_inv@(selection_vector + resultant_torques - C - G)
 
 		# print(theta_double_dot)
 		# print(selection_vector)

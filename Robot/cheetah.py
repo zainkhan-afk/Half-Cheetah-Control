@@ -180,7 +180,7 @@ class Cheetah:
 		hind_J  = self.leg_hind.GetJacobian()
 		front_J = self.leg_front.GetJacobian()
 
-		body_J  = self.body_kine_model.GetJacobian(front_ee_pos, hind_ee_pos)
+		body_J  = self.body_kine_model.GetJacobian(hind_ee_pos, front_ee_pos)
 
 		jacobian[:3,   :]   = body_J
 		jacobian[3:5, :2]   = hind_J

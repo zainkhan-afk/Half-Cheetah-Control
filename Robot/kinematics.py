@@ -77,11 +77,11 @@ class BodyKinematics:
 
 		return positions
 
-	def GetJacobian(self, ee_pos_front, ee_pos_hind, contact_mask = [1, 1]):
+	def GetJacobian(self, ee_pos_hind, ee_pos_front, contact_mask = [1, 1]):
 		J = np.array([
 						[			  1, 			  0, 			  1, 			 0],
 						[			  0, 			  1, 			  0, 			 1],
-						[ee_pos_front[0, 0], ee_pos_front[1, 0], ee_pos_hind[0, 0], ee_pos_hind[1, 0]]
+						[ee_pos_hind[0, 0], ee_pos_hind[1, 0], ee_pos_front[0, 0], ee_pos_front[1, 0]]
 					])
 
 		return J
