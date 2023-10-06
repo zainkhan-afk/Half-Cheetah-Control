@@ -23,8 +23,10 @@ sim.AddEntity(ground)
 
 ang = 0
 
-
 robot_placed = False
+
+force = np.array([[0, 0, 0, 0]]).T
+
 while not robot_placed:
 	robot_placed = cheetah.Rest()
 	ret = sim.Step()
@@ -32,7 +34,8 @@ while not robot_placed:
 		sys.exit()
 
 while True:
-	cheetah.StandUp()
+	# cheetah.StandUp()
+	cheetah.ApplyForceToLegs(force)
 	# cheetah.body_angle = np.pi/36*np.sin(ang)
 
 

@@ -21,11 +21,14 @@ class Leg:
 	def GetEEFKPosition(self):
 		return self.leg_kine_model.FK(self.thigh_joint.angle, self.shin_joint.angle)
 
+	def SetAngles(self, angles):
+		self.thigh_joint_controller.SetAngle(angles[0])
+		self.shin_joint_controller.SetAngle(angles[1])
+
 	def MoveTo(self, position):
 		theta_1, theta_2 = self.leg_kine_model.IK(position)
 		self.thigh_joint_controller.SetAngle(theta_1)
 		self.shin_joint_controller.SetAngle(theta_2)
-
 
 	def MoveToAcc(self, acc):
 		speed_1 = self.thigh_joint.speed + acc[0]*TIME_STEP

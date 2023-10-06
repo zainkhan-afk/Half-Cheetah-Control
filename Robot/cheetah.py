@@ -104,39 +104,15 @@ class Cheetah:
 		floating_body_pos = np.array([self.torso.body.position[0], self.torso.body.position[1]])
 
 		dynamics = QuadrupedDynamics(self.torso)
-		dynamics.AddLeg("front", self.thigh_front, self.shin_front, self.front_thigh_joint, self.front_shin_joint)
 		dynamics.AddLeg("hind", self.thigh_hind, self.shin_hind, self.hind_thigh_joint, self.hind_shin_joint)
+		dynamics.AddLeg("front", self.thigh_front, self.shin_front, self.front_thigh_joint, self.front_shin_joint)
 
 		return dynamics
 
 	def StandUp(self, height = 0.3):
-		self.dynamics.CalculateCompositeRigidBodyInertia()
+		pass
 
-		jacobian = np.zeros((7, 4))
-
-		front_ee_pos = self.leg_front.GetEEFKPosition()
-		hind_ee_pos  = self.leg_front.GetEEFKPosition()
-
-		front_J = self.leg_front.GetJacobian()
-		hind_J  = self.leg_front.GetJacobian()
-
-		body_J  = self.body_kine_model.GetJacobian(front_ee_pos, hind_ee_pos)
-
-		jacobian[:3,   :]   = body_J
-		jacobian[3:5, :2]   = front_J
-		jacobian[5: , 2:]   = hind_J
-
-		forces = np.array([[0, -100, 0, -100]]).T
-
-		theta_double_dot, self.old_torques = self.dynamics.ForwardDynamics(forces, jacobian, old_torques = self.old_torques)
-
-		acc_front = [theta_double_dot[3, 0], theta_double_dot[4, 0]]
-		acc_hind  = [theta_double_dot[5, 0], theta_double_dot[6, 0]]
-
-		self.leg_front.MoveToAcc(acc_front)
-		self.leg_hind.MoveToAcc(acc_hind)
-
-	def Rest(self, height = 0.1):
+	def Rest(self, height = 0.2):
 		positions = np.array([
 								[0, -height, 1],
 								[0, -height, 1]
@@ -149,6 +125,57 @@ class Cheetah:
 
 		desired_pos_leg_front = np.array([[positions[0, 0], positions[0, 1]]]).T
 		return AlmostEqual(desired_pos_leg_front, self.leg_front.GetEEFKPosition())
+
+	def ApplyForceToLegs(self, force):
+		hind_theta_thigh, hind_theta_shin = self.leg_hind.GetAngles()
+		front_theta_thigh, front_theta_shin = self.leg_front.GetAngles()
+
+		body_position = self.torso.GetPosition()
+		body_angle = self.torso.body.angle
+
+		body_position = np.array([body_position[0], body_position[1]])
+
+		self.state = self.state.UpdateUsingJointTheta(np.array([hind_theta_thigh, hind_theta_shin, front_theta_thigh, front_theta_shin]))
+		self.state = self.state.UpdateUsingPosition(body_position)
+		self.state = self.state.UpdateUsingBodyTheta(body_angle)
+
+		self.dynamics.CalculateCompositeRigidBodyInertia()
+
+		jacobian = np.zeros((7, 4))
+
+		hind_ee_pos  = self.leg_hind.GetEEFKPosition()
+		front_ee_pos = self.leg_front.GetEEFKPosition()
+
+		hind_J  = self.leg_hind.GetJacobian()
+		front_J = self.leg_front.GetJacobian()
+
+		body_J  = self.body_kine_model.GetJacobian(front_ee_pos, hind_ee_pos)
+
+		jacobian[:3,   :]   = body_J
+		jacobian[3:5, :2]   = hind_J
+		jacobian[5: , 2:]   = front_J
+
+		forces = np.array([[0, -100, 0, -100]]).T
+
+		theta_double_dot, self.old_torques = self.dynamics.ForwardDynamics(forces, jacobian, self.state)
+
+
+		body_acc = theta_double_dot[:2, 0]
+		body_theta_double_dot = theta_double_dot[2, 0]
+		joint_theta_double_dot = theta_double_dot[3:, 0]
+
+		self.state = self.state.UpdateUsingJointThetaDoubleDot(joint_theta_double_dot)
+		self.state = self.state.UpdateUsingAcceleration(body_acc)
+		self.state = self.state.UpdateUsingBodyThetaDoubleDot(body_theta_double_dot)
+
+
+		hind_leg_theta = self.state.joint_theta[:2]
+		front_leg_theta = self.state.joint_theta[2:]
+
+		self.leg_hind.SetAngles(hind_leg_theta)
+		self.leg_front.SetAngles(front_leg_theta)
+
+		print(self.state)
 
 
 	def Render(self, screen, PPM):

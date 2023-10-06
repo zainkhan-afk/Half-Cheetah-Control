@@ -123,18 +123,3 @@ class State:
 				Joint Theta Dot: {self.joint_theta_dot[2], self.joint_theta_dot[3]}
 				Joint Theta Double Dot: {self.joint_theta_double_dot[2], self.joint_theta_double_dot[3]}
 		'''
-
-if __name__ == "__main__":
-	import numpy as np
-	
-	pos = np.array([0, 0])
-	vel = np.array([0, 0])
-	acc = np.array([0, 0])
-
-	joint_theta = np.array([0, 0, 0, 0])
-	joint_theta_dot = np.array([0, 0, 0, 0])
-	joint_theta_double_dot = np.array([0, 0, 0, 0])
-
-	s = State(pos, vel, acc, 0, 0, 0, joint_theta, joint_theta_dot, joint_theta_double_dot)
-
-	print(s)

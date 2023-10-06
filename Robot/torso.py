@@ -22,3 +22,6 @@ class Torso:
 
 	def GetTransform(self):
 		return GetTransformationMatrix(self.body.angle, self.body.position[0], self.body.position[1])
+
+	def GetPosition(self):
+		return self.body.position
