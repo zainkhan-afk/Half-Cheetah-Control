@@ -1,6 +1,6 @@
 import pygame
 import numpy as np
-from utils import AlmostEqual
+from utils import AlmostEqual, GetTransformationMatrix
 
 from .torso import Torso
 from .legSegment import LegSegment
@@ -177,10 +177,25 @@ class Cheetah:
 		hind_ee_pos  = self.leg_hind.GetEEFKPosition()
 		front_ee_pos = self.leg_front.GetEEFKPosition()
 
+		hind_base_T_hind_ee = GetTransformationMatrix(0, hind_ee_pos[0, 0], hind_ee_pos[1, 0])
+		front_base_T_front_ee = GetTransformationMatrix(0, front_ee_pos[0, 0], front_ee_pos[1, 0])
+
+		COM_T_hind_base = GetTransformationMatrix(0, self.leg_hind_pos[0], self.leg_hind_pos[1])
+		COM_T_front_base = GetTransformationMatrix(0, self.leg_front_pos[0], self.leg_front_pos[1])
+
+		world_T_COM = GetTransformationMatrix(self.state.body_theta, self.state.position[0], self.state.position[1])
+
+		world_T_hind_ee = world_T_COM@COM_T_hind_base@hind_base_T_hind_ee
+		world_T_front_ee = world_T_COM@COM_T_front_base@front_base_T_front_ee
+
+		hind_ee_pos_wrt_world = np.array([[world_T_hind_ee[0, 0], world_T_hind_ee[0, 1]]]).T
+		front_ee_pos_wrt_world = np.array([[world_T_front_ee[0, 0], world_T_front_ee[0, 1]]]).T
+
+
 		hind_J  = self.leg_hind.GetJacobian()
 		front_J = self.leg_front.GetJacobian()
 
-		body_J  = self.body_kine_model.GetJacobian(hind_ee_pos, front_ee_pos)
+		body_J  = self.body_kine_model.GetJacobian(hind_ee_pos_wrt_world, front_ee_pos_wrt_world)
 
 		jacobian[:3,   :]   = body_J
 		jacobian[3:5, :2]   = hind_J
