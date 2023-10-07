@@ -25,8 +25,8 @@ ang = 0
 
 robot_placed = False
 
-force = np.array([[0, 0, 0, 0]]).T
 
+print("Going to Home Position")
 while not robot_placed:
 	robot_placed = cheetah.Rest()
 	ret = sim.Step()
@@ -39,7 +39,9 @@ cheetah.UpdateState()
 cheetah.UpdateState()
 print("State Updated")
 
-print(f"Applying Force: {force}")
+
+force = np.array([[0, 0, 0, 0]]).T
+print(f"Applying Force: {force.ravel()}")
 
 ctr = 0
 while True:

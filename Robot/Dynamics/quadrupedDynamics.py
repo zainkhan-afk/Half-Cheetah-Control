@@ -54,8 +54,8 @@ class QuadrupedDynamics:
 		selection_vector = np.zeros((7, 1))
 		selection_vector[3: ] = old_torques
 
-		jacobian_legs = jacobian[3:, :]
 		jacobian_body = jacobian[:3, :]
+		jacobian_legs = jacobian[3:, :]
 
 		EE_hind = np.array([[jacobian_body[2, 0], jacobian_body[2, 1]]])
 		EE_front  = np.array([[jacobian_body[2, 2], jacobian_body[2, 3]]])

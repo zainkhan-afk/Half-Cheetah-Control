@@ -46,7 +46,7 @@ class Cheetah:
 									bodyA = ground.body,
 									bodyB = self.torso.body,
 									anchor = position,
-									maxMotorTorque = 10000.0,
+									maxMotorTorque = 100.0,
 									motorSpeed = 0.0,
 									enableMotor = True,
 									)
@@ -55,7 +55,7 @@ class Cheetah:
 									bodyA = self.torso.body,
 									bodyB = self.thigh_front.body,
 									anchor = self.front_leg_thigh_joint_pos,
-									maxMotorTorque = 10000.0,
+									maxMotorTorque = 100.0,
 									motorSpeed = 0.0,
 									enableMotor = True,
 									)
@@ -65,7 +65,7 @@ class Cheetah:
 									bodyA = self.torso.body,
 									bodyB = self.thigh_hind.body,
 									anchor = self.hind_leg_thigh_joint_pos,
-									maxMotorTorque = 10000.0,
+									maxMotorTorque = 100.0,
 									motorSpeed = 0.0,
 									enableMotor = True,
 									)
@@ -74,7 +74,7 @@ class Cheetah:
 									bodyA = self.thigh_front.body,
 									bodyB = self.shin_front.body,
 									anchor = self.front_leg_shin_joint_pos,
-									maxMotorTorque = 10000.0,
+									maxMotorTorque = 100.0,
 									motorSpeed = 0.0,
 									enableMotor = True,
 									)
@@ -83,7 +83,7 @@ class Cheetah:
 									bodyA = self.thigh_hind.body,
 									bodyB = self.shin_hind.body,
 									anchor = self.hind_leg_shin_joint_pos,
-									maxMotorTorque = 10000.0,
+									maxMotorTorque = 100.0,
 									motorSpeed = 0.0,
 									enableMotor = True,
 									)
@@ -127,11 +127,10 @@ class Cheetah:
 							])
 
 		positions = self.body_kine_model.IK(positions, self.body_angle)
-		
-		self.leg_front.MoveTo(positions[0, :])
-		self.leg_hind.MoveTo( positions[1, :])
 
-		desired_pos_leg_front = np.array([[positions[0, 0], positions[0, 1]]]).T
+		# self.leg_front.MoveTo(positions[0, :])
+		# self.leg_hind.MoveTo( positions[1, :])
+
 
 		self.leg_hind.MoveTo( positions[0, :])
 		self.leg_front.MoveTo(positions[1, :])
@@ -148,6 +147,9 @@ class Cheetah:
 		self.state = self.state.UpdateUsingPosition(body_position)
 		self.state = self.state.UpdateUsingBodyTheta(body_angle)
 
+
+		desired_pos_leg_front = np.array([[positions[1, 0], positions[1, 1]]]).T
+		print(desired_pos_leg_front.ravel(), self.leg_front.GetEEFKPosition().ravel())
 		return AlmostEqual(desired_pos_leg_front, self.leg_front.GetEEFKPosition())
 
 	def UpdateState(self):
@@ -181,7 +183,6 @@ class Cheetah:
 		self.state = self.state.UpdateUsingBodyTheta(body_angle)
 
 
-		jacobian = np.zeros((7, 4))
 
 		hind_ee_pos  = self.leg_hind.GetEEFKPosition()
 		front_ee_pos = self.leg_front.GetEEFKPosition()
@@ -209,10 +210,12 @@ class Cheetah:
 
 		# print(hind_ee_pos_wrt_FB.ravel(), front_ee_pos_wrt_FB.ravel())
 
-		hind_J  = self.leg_hind.GetJacobian()
-		front_J = self.leg_front.GetJacobian()
+		hind_J  = self.leg_hind.GetJacobian(hind_theta_thigh, hind_theta_shin)
+		front_J = self.leg_front.GetJacobian(front_theta_thigh, front_theta_shin)
 
 		body_J  = self.body_kine_model.GetJacobian(hind_ee_pos_wrt_FB, front_ee_pos_wrt_FB)
+
+		jacobian = np.zeros((7, 4))
 
 		jacobian[:3,   :]   = body_J
 		jacobian[3:5, :2]   = hind_J

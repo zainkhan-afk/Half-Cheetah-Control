@@ -6,15 +6,25 @@ class LegKinematics:
 		self.l1 = l1
 		self.l2 = l2
 
+		# self.R_world_robot = GetRotationMatrix(np.pi/2)
+
 	def FK(self, theta_1, theta_2):
-		theta_1 = theta_1 - np.pi/2
+		# theta_1 = theta_1 - np.pi/2
+
 		x = self.l2*np.cos(theta_1 + theta_2) + self.l1*np.cos(theta_1)
 		y = self.l2*np.sin(theta_1 + theta_2) + self.l1*np.sin(theta_1)
 
-		return np.array([[x, y]]).T
+
+		position = np.array([[x, y]]).T
+		# position = self.R_world_robot@position
+
+		# print("FK", position.ravel())
+
+		return position
 
 
 	def IK(self, position):
+		# print(position)
 		x = position[0]
 		y = position[1]
 
@@ -30,17 +40,22 @@ class LegKinematics:
 
 		theta_1 = np.arctan2(y, x) - np.arctan2((self.l2*np.sin(theta_2)), (self.l1 + self.l2*np.cos(theta_2)))
 
-		return np.pi/2 + theta_1, theta_2
-		# return theta_1, theta_2
+		# return np.pi/2 + theta_1, theta_2
+		return theta_1, theta_2
 
 	def GetJacobian(self, theta_1, theta_2):
-		theta_1 = theta_1 - np.pi/2
+		# theta_1 = theta_1 - np.pi/2
 
 		J = np.array([
 					[- self.l1*np.sin(theta_1) - self.l2*np.sin(theta_1 + theta_2), -self.l2*np.sin(theta_1 + theta_2)],
 					[  self.l1*np.cos(theta_1) + self.l2*np.cos(theta_1 + theta_2),  self.l2*np.cos(theta_1 + theta_2)]
 					]) # J_wrt_0
 
+
+		# J = np.array([
+		# 			[ self.l1*np.sin(theta_1), 0],
+		# 			[ self.l1*np.cos(theta_1) + self.l2,  self.l2]
+		# 			]) # J_wrt_3 
 
 		return J
 
