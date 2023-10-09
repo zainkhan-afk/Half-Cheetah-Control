@@ -38,11 +38,7 @@ class PID:
 		current_pos = np.array(hind_hip_position_current + front_hip_position_current)
 		goal_pos    = np.array(hind_hip_position_goal + front_hip_position_goal)
 
-		error = goal_pos - current_pos
-		print()
-		print("Current:", current_pos)
-		print("Goal:   ", goal_pos)
-		print("Error:  ", error)
+		error = current_pos - goal_pos
 		force = self.P*error + self.D*(self.prev_error - error) + self.I*self.error_sum
 
 		new_state = self.dynamicsSimulator.GoToNextStateFD(force.reshape(len(force), 1), J, current_state)

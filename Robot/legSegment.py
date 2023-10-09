@@ -9,7 +9,7 @@ class LegSegment:
 		box = self.body.CreatePolygonFixture(box=(width, height), density=5, friction=0.3, filter = b2Filter(groupIndex=group_index))
 		print(self.body.mass)
 		
-		self.color = (200, 200, 255)
+		self.color = (0, 0, 255)
 
 	def Render(self, screen, PPM):
 		H = screen.get_height()
