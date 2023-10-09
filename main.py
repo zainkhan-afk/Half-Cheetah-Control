@@ -6,7 +6,7 @@ from Robot import Cheetah
 from ground import Ground
 
 from utils import *
-
+from Controller import PID 
 
 
 PPM = 50.0  # pixels per meter
@@ -17,6 +17,8 @@ SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
 sim = Simulation(width = SCREEN_WIDTH, height = SCREEN_HEIGHT, delta_T = TIME_STEP, PPM = PPM, FPS = TARGET_FPS)
 ground = Ground(sim)
 cheetah = Cheetah(sim, ground, position = np.array([2.5, 3.0]), angle  = 0)
+
+pid_controller = PID(cheetah.dynamicsModel, cheetah.leg_hind_pos, cheetah.leg_front_pos, P = 250, I = 1, D = 10)
 
 sim.AddEntity(cheetah)
 sim.AddEntity(ground)
@@ -39,20 +41,21 @@ cheetah.UpdateState()
 cheetah.UpdateState()
 print("State Updated")
 
-
-force = np.array([[0, 0, 0, 0]]).T
-print(f"Applying Force: {force.ravel()}")
-
-ctr = 0
+ang = 0
 while True:
-	# print(ctr)
-	# cheetah.StandUp()
-	cheetah.ApplyForceToLegs(force)
-	# cheetah.body_angle = np.pi/36*np.sin(ang)
-	# ctr += 1
+	cheetah.UpdateState()
+	current_state = cheetah.GetState()
+	J = cheetah.GetJacobian()
 
-	# if ctr >= 1000:
-	# 	break
+	current_pos = current_state.position
+	current_body_theta = current_state.body_theta
+	goal_pos = np.array([current_pos[0], current_pos[1] + 0.1])
+	goal_body_theta = current_body_theta
+
+	new_state = pid_controller.Solve(current_state, J, current_pos, current_body_theta, goal_pos, goal_body_theta)
+	cheetah.ApplyState(new_state)
+
 	ret = sim.Step()
+	ang += 0.001
 	if not ret:
 		sys.exit()

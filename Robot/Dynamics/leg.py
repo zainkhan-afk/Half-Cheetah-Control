@@ -72,12 +72,6 @@ class Leg:
 		theta1_dot = state.joint_theta_dot[self.leg_index + 0]
 		theta2_dot = state.joint_theta_dot[self.leg_index + 1]
 
-		# theta1 = self.joint_1.GetAngle()
-		# theta2 = self.joint_2.GetAngle()
-
-		# theta1_dot = self.joint_1.GetVelocity()
-		# theta2_dot = self.joint_2.GetVelocity()
-
 		a = self.l2*self.m2*gravity*np.cos(theta1 + theta2)
 		b = (self.m2 + self.m1)*self.l1*gravity*np.cos(theta1)
 		r11 = a + b

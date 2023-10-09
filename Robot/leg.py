@@ -15,8 +15,8 @@ class Leg:
 	def GetJacobian(self, theta_1, theta_2):
 		return self.leg_kine_model.GetJacobian(theta_1, theta_2)
 
-	def GetEEFKPosition(self):
-		return self.leg_kine_model.FK(self.thigh_joint_controller.GetAngle(), self.shin_joint_controller.GetAngle())
+	def GetEEFKPosition(self, theta_1, theta_2):
+		return self.leg_kine_model.FK(theta_1, theta_2)
 
 	def SetAngles(self, angles):
 		self.thigh_joint_controller.SetAngle(angles[0])
