@@ -17,7 +17,7 @@ class Cheetah:
 		self.torso_height = 0.1
 
 		self.leg_width = 0.01
-		self.leg_segment_length = 0.2
+		self.leg_segment_length = 0.15
 
 		self.body_angle = 0
 

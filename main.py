@@ -42,8 +42,8 @@ cheetah.UpdateState()
 print("State Updated")
 
 ang = 0
-y = 2.57
-x = 2.88
+y = 2.41
+x = 2.22
 while True:
 	cheetah.UpdateState()
 	current_state = cheetah.GetState()
@@ -51,8 +51,8 @@ while True:
 
 	current_pos = current_state.position
 	current_body_theta = current_state.body_theta
-	goal_pos = np.array([x + 0.15*np.cos(ang), y + 0.15*np.sin(ang)])
-	goal_body_theta = 0
+	goal_pos = np.array([x + 0.05*np.cos(ang), y + 0.05*np.sin(ang)])
+	goal_body_theta = current_body_theta
 
 	new_state = pid_controller.Solve(current_state, J, current_pos, current_body_theta, goal_pos, goal_body_theta)
 	cheetah.ApplyState(new_state)
