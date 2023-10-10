@@ -7,7 +7,7 @@ from ground import Ground
 
 from utils import *
 from Controller import PID 
-
+from trajectory import Trajectory
 
 PPM = 50.0  # pixels per meter
 TARGET_FPS = 60
@@ -16,12 +16,22 @@ SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
 
 sim = Simulation(width = SCREEN_WIDTH, height = SCREEN_HEIGHT, delta_T = TIME_STEP, PPM = PPM, FPS = TARGET_FPS)
 ground = Ground(sim)
-cheetah = Cheetah(sim, ground, position = np.array([2.5, 3.0]), angle  = 0)
+cheetah = Cheetah(sim, ground, position = np.array([2.5, 2.5]), angle  = 0)
+traj = Trajectory(size = 500)
 
 pid_controller = PID(cheetah.dynamicsModel, cheetah.leg_hind_pos, cheetah.leg_front_pos, P = 250, I = 1, D = 10)
 
+
+num_pts = 500
+for i in range(num_pts):
+	point = np.array([2.51 + i/num_pts * 5, 1.25])
+	traj.AddPoint(point)
+
 sim.AddEntity(cheetah)
 sim.AddEntity(ground)
+sim.AddEntity(traj)
+
+traj.MakePathRenderPts(sim.renderer.screen, sim.PPM)
 
 ang = 0
 
@@ -43,13 +53,14 @@ print("State Updated")
 
 ang = 0
 y = 2.41
-x = 2.22
+x = 2.51
 while True:
 	cheetah.UpdateState()
 	current_state = cheetah.GetState()
 	J = cheetah.GetJacobian()
 
 	current_pos = current_state.position
+	# print(current_pos)
 	current_body_theta = current_state.body_theta
 	goal_pos = np.array([x + 0.05*np.cos(ang), y + 0.05*np.sin(ang)])
 	goal_body_theta = current_body_theta
