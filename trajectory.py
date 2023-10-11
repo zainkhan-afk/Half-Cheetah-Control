@@ -4,7 +4,7 @@ class Trajectory:
 	def __init__(self, size = 100, transform = None):
 		self.path = []
 		self.size = size
-		self.color_line = (255, 0, 0)
+		self.color_line = (255, 255, 0)
 		self.transform = transform
 		self.current_path_point_index = 0
 		self.renderPts = None
@@ -45,7 +45,7 @@ class Trajectory:
 				pt = np.array([self.transform[0] +     2*self.path[i][0], self.transform[1] +     2*self.path[i][1]]) * PPM
 
 			else:
-				pt = np.array([    2*self.path[i][0],     2*self.path[i][1]]) * PPM
+				pt = np.array([    self.path[i][0],     self.path[i][1]]) * PPM
 
 			pt = (pt[0], H - pt[1])
 
