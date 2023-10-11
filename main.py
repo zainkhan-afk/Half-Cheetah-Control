@@ -8,6 +8,7 @@ from ground import Ground
 from utils import *
 from Controller import PID 
 from trajectory import Trajectory
+from gait import Gait
 
 PPM = 50.0  # pixels per meter
 TARGET_FPS = 60
@@ -17,6 +18,7 @@ SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
 sim = Simulation(width = SCREEN_WIDTH, height = SCREEN_HEIGHT, delta_T = TIME_STEP, PPM = PPM, FPS = TARGET_FPS)
 ground = Ground(sim)
 cheetah = Cheetah(sim, ground, position = np.array([1, 0.8]), angle  = 0)
+gait  = Gait(Tg = 1)
 traj = Trajectory(size = 500)
 
 pid_controller = PID(cheetah.dynamicsModel, cheetah.leg_hind_pos, cheetah.leg_front_pos, P = 250, I = 1, D = 10)
@@ -54,6 +56,7 @@ print("State Updated")
 ang = 0
 y = 2.41
 x = 2.51
+t = 0
 while True:
 	cheetah.UpdateState()
 	current_state = cheetah.GetState()
@@ -66,12 +69,13 @@ while True:
 	goal_body_theta = current_body_theta
 	goal_pos = current_pos
 
-	print(current_pos)
+	gait.GetLegPosition(t, None)
 
 	new_state = pid_controller.Solve(current_state, J, current_pos, current_body_theta, goal_pos, goal_body_theta)
 	cheetah.ApplyState(new_state)
 
 	ret = sim.Step()
 	ang += 0.0025
+	t += TIME_STEP
 	if not ret:
 		sys.exit()

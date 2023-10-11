@@ -1,5 +1,5 @@
 class Gait:
-	def __init__(self, Tg, step_height = 0.01, max_step_size = 0.5, gait_type = "trot"):
+	def __init__(self, Tg, step_height = 0.01, max_step_size = 0.25, gait_type = "trot"):
 		'''
 		Tg - Gait time
 		gait_type - Name of the gait 
@@ -12,11 +12,13 @@ class Gait:
 		self.Tg = Tg
 		self.gait_type = gait_type
 
-		if self.gait_type == "trot":
-			self.gait_matrix = [
-									[0, 0.5],
-									[0.5, 1]
-							   ]
+		self.gait_matrix = [
+								[0, 0.5],
+								[0.5, 1]
+						   ]
 
 	def GetLegPosition(self, t, leg_positions):
 		gait_cycle_t = t - self.Tg*int(t/self.Tg)
+		t_norm = gait_cycle_t / self.Tg
+
+		print(t, gait_cycle_t, t_norm)
