@@ -8,7 +8,6 @@ from ground import Ground
 from utils import *
 from Controller import PID 
 from trajectory import Trajectory
-from gait import Gait
 
 PPM = 50.0  # pixels per meter
 TARGET_FPS = 60
@@ -18,7 +17,6 @@ SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
 sim = Simulation(width = SCREEN_WIDTH, height = SCREEN_HEIGHT, delta_T = TIME_STEP, PPM = PPM, FPS = TARGET_FPS)
 ground = Ground(sim)
 cheetah = Cheetah(sim, ground, position = np.array([1, 0.8]), angle  = 0)
-gait  = Gait(Tg = 1)
 traj = Trajectory(size = 500)
 
 pid_controller = PID(cheetah.dynamicsModel, cheetah.leg_hind_pos, cheetah.leg_front_pos, P = 250, I = 1, D = 10)
@@ -59,20 +57,22 @@ x = 2.51
 t = 0
 while True:
 	cheetah.UpdateState()
-	current_state = cheetah.GetState()
-	J = cheetah.GetJacobian()
+	cheetah.Walk(t)
+	# current_state = cheetah.GetState()
+	# J = cheetah.GetJacobian()
 
-	current_pos = current_state.position
-	# print(current_pos)
-	current_body_theta = current_state.body_theta
-	goal_pos = np.array([x + 0.05*np.cos(ang), y + 0.05*np.sin(ang)])
-	goal_body_theta = current_body_theta
-	goal_pos = current_pos
+	# current_pos = current_state.position
+	# # print(current_pos)
+	# current_body_theta = current_state.body_theta
+	# goal_pos = np.array([x + 0.05*np.cos(ang), y + 0.05*np.sin(ang)])
+	# goal_body_theta = current_body_theta
+	# goal_pos = current_pos
 
-	gait.GetLegPosition(t, None)
+	# hind_leg_pos, front_leg_pos = gait.GetLegPosition(t, None)
+	# print(hind_leg_pos, front_leg_pos)
 
-	new_state = pid_controller.Solve(current_state, J, current_pos, current_body_theta, goal_pos, goal_body_theta)
-	cheetah.ApplyState(new_state)
+	# new_state = pid_controller.Solve(current_state, J, current_pos, current_body_theta, goal_pos, goal_body_theta)
+	# cheetah.ApplyState(new_state)
 
 	ret = sim.Step()
 	ang += 0.0025
