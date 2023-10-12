@@ -33,6 +33,7 @@ class Gait:
 			x = t_norm*step_size
 			# x = t_norm/2 * step_size
 			y = np.sqrt((1 - (x**2)/(step_size**2))*self.step_height**2)
+			print(t_norm, y)
 			leg_pos = [x, y + height_offset]
 
 		elif t_norm >	self.gait_matrix[leg_index, 1]:
