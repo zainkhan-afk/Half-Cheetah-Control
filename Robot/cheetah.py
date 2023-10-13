@@ -43,14 +43,14 @@ class Cheetah:
 		self.shin_front = LegSegment(sim_handle, self.front_leg_shin_pos, angle, self.leg_width, self.leg_segment_length, group_index = -1)
 		self.shin_hind = LegSegment(sim_handle, self.hind_leg_shin_pos, angle, self.leg_width, self.leg_segment_length, group_index = -1)
 
-		# body_world_joint = sim_handle.world.CreateRevoluteJoint(
-		# 							bodyA = ground.body,
-		# 							bodyB = self.torso.body,
-		# 							anchor = position,
-		# 							maxMotorTorque = 100.0,
-		# 							motorSpeed = 0.0,
-		# 							enableMotor = True,
-		# 							)
+		body_world_joint = sim_handle.world.CreateRevoluteJoint(
+									bodyA = ground.body,
+									bodyB = self.torso.body,
+									anchor = position,
+									maxMotorTorque = 100.0,
+									motorSpeed = 0.0,
+									enableMotor = True,
+									)
 
 		self.front_thigh_joint = sim_handle.world.CreateRevoluteJoint(
 									bodyA = self.torso.body,
@@ -105,7 +105,7 @@ class Cheetah:
 							angle, 0, 0,
 							np.array([hind_theta_thigh, hind_theta_shin, front_theta_thigh, front_theta_shin]), 
 							np.array([0, 0, 0, 0]), np.array([0, 0, 0, 0]))
-		self.gait = Gait(Tg = 4)
+		self.gait = Gait(Tg = 0.5)
 
 
 	def SetUpRobotDynamics(self):

@@ -1,6 +1,6 @@
 import numpy as np
 class Gait:
-	def __init__(self, Tg, step_height = 0.01, max_step_size = 0.25, gait_type = "trot"):
+	def __init__(self, Tg, step_height = 0.05, max_step_size = 0.25, gait_type = "trot"):
 		'''
 		Tg - Gait time
 		gait_type - Name of the gait 
@@ -23,6 +23,9 @@ class Gait:
 										[0, 0.5]
 								   ])
 
+		self.m = 0
+		self.l = 0
+
 	def FindLegPos(self, t_norm, step_size, leg_index, height_offset):
 		leg_pos = None
 		if t_norm < self.gait_matrix[leg_index, 0]:
@@ -30,11 +33,11 @@ class Gait:
 
 		elif self.gait_matrix[leg_index, 0] < t_norm < self.gait_matrix[leg_index, 1]:
 			t_norm = (t_norm - self.gait_matrix[leg_index, 0]) / (self.gait_matrix[leg_index, 1] - self.gait_matrix[leg_index, 0])
-			x = t_norm*step_size
+			x = (t_norm - 0.5)*step_size
 			# x = t_norm/2 * step_size
-			y = np.sqrt((1 - (x**2)/(step_size**2))*self.step_height**2)
-			print(t_norm, y)
+			y = np.sqrt((1 - (x**2)/((step_size/2)**2))*self.step_height**2)
 			leg_pos = [x, y + height_offset]
+			print(x, y + height_offset)
 
 		elif t_norm >	self.gait_matrix[leg_index, 1]:
 			leg_pos = None
@@ -42,6 +45,8 @@ class Gait:
 		return leg_pos
 
 	def GetLegPosition(self, t, leg_positions, height_offset = -0.2):
+		if t>self.Tg:
+			return None, None
 		gait_cycle_t = t - self.Tg*int(t/self.Tg)
 		t_norm = gait_cycle_t / self.Tg
 		step_size = self.max_step_size
