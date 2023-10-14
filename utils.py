@@ -8,6 +8,9 @@ def GetRotationMatrix(theta):
 
 	return R
 
+def GetAngle(p1, p2):
+	return np.arctan2((p1[1] - p2[1]), (p1[0] - p2[0]))
+
 
 def GetTransformationMatrix(theta, x, y):
 	R = GetRotationMatrix(theta)

@@ -52,11 +52,18 @@ cheetah.UpdateState()
 print("State Updated")
 
 ang = 0
+new_state = None
 x = 0.84676296
 y = 0.53007615
 t = 0
 while True:
 	cheetah.UpdateState()
+
+	if new_state is not None:
+		error_state = cheetah.CalculateStateError(new_state)
+		print("Difference between the predicted state and the actual state")
+		print(error_state)
+
 	# cheetah.Walk(t)
 	current_state = cheetah.GetState()
 	J = cheetah.GetJacobian()
@@ -64,9 +71,9 @@ while True:
 	current_pos = current_state.position
 	current_body_theta = current_state.body_theta
 	goal_pos = np.array([x + 0.05*np.cos(ang), y + 0.05*np.sin(ang)])
-	# goal_body_theta = current_body_theta
+	goal_body_theta = current_body_theta
 	goal_pos = current_pos
-	goal_body_theta = np.pi/36*np.sin(ang)
+	# goal_body_theta = np.pi/36*np.sin(ang)
 
 
 	new_state = pid_controller.Solve(current_state, J, current_pos, current_body_theta, goal_pos, goal_body_theta)

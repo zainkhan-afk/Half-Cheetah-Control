@@ -249,3 +249,7 @@ class Cheetah:
 
 		self.shin_front.Render(screen, PPM)
 		self.shin_hind.Render(screen, PPM)
+
+	def CalculateStateError(self, state_pred):
+		error_state = self.state - state_pred
+		return error_state

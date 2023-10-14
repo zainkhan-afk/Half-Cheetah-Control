@@ -95,8 +95,12 @@ class State:
 			new_joint_theta, new_joint_theta_dot, joint_theta_double_dot) 
 
 
-	def Update(self, position, velocity, acceleration, body_theta, body_theta_dot, body_theta_double_dot, joint_theta, joint_theta_dot, joint_theta_double_dot):
-		return State(position, velocity, acceleration, body_theta, body_theta_dot, body_theta_double_dot, joint_theta, joint_theta_dot, joint_theta_double_dot)
+	def Update(self, position, velocity, acceleration, body_theta, body_theta_dot, 
+					body_theta_double_dot, joint_theta, joint_theta_dot, 
+					joint_theta_double_dot):
+		return State(position, velocity, acceleration, body_theta, body_theta_dot, 
+						body_theta_double_dot, joint_theta, joint_theta_dot, 
+						joint_theta_double_dot)
 
 
 	def __str__(self):
@@ -125,3 +129,20 @@ class State:
 				Joint Theta Dot: {self.joint_theta_dot[2], self.joint_theta_dot[3]}
 				Joint Theta Double Dot: {self.joint_theta_double_dot[2], self.joint_theta_double_dot[3]}
 		'''
+
+	def __sub__(self, other):
+		error_postion = other.position - self.position
+		error_velocity = other.velocity - self.velocity
+		error_acceleration = other.acceleration - self.acceleration
+
+		error_body_theta = other.body_theta -  self.body_theta
+		error_body_theta_dot = other.body_theta_dot - self.body_theta_dot
+		error_body_theta_double_dot = other.body_theta_double_dot - self.body_theta_double_dot
+
+		error_joint_theta = other.joint_theta - self.joint_theta
+		error_joint_theta_dot = other.joint_theta_dot - self.joint_theta_dot
+		error_joint_theta_double_dot = other.joint_theta_double_dot - self.joint_theta_double_dot
+
+		return State(error_postion, error_velocity, error_acceleration, 
+					error_body_theta, error_body_theta_dot, error_body_theta_double_dot, 
+					error_joint_theta, error_joint_theta_dot, error_joint_theta_double_dot)

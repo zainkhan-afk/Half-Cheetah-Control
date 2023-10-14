@@ -4,7 +4,7 @@ from .floatingBase import FloatingBase
 from .legSegment import LegSegment
 from .leg import Leg
 
-from utils import GetInverseMatrix
+from utils import GetInverseMatrix, GetAngle
 
 class QuadrupedDynamics:
 	def __init__(self, floating_base):
@@ -51,6 +51,12 @@ class QuadrupedDynamics:
 		C = self.GetCoriolisMatrix(state)
 		G = self.GetGravityMatrix(state)
 
+		# if forces[1, 0] > 0:
+		# 	forces = np.array([[0, 0, 0, 0]]).T
+
+		# if forces[3, 0] > 0:
+		# 	forces = np.array([[0, 0, 0, 0]]).T
+
 		selection_vector = np.zeros((7, 1))
 		selection_vector[3: ] = old_torques
 
@@ -59,9 +65,16 @@ class QuadrupedDynamics:
 
 		EE_hind = np.array([[jacobian_body[2, 0], jacobian_body[2, 1]]])
 		EE_front  = np.array([[jacobian_body[2, 2], jacobian_body[2, 3]]])
-
 		f_hind = np.array([[forces[0, 0], forces[1, 0]]]).T
 		f_front  = np.array([[forces[2, 0], forces[3, 0]]]).T
+
+
+		force_angle_hind  = GetAngle(f_hind.ravel(), np.array([0, 0]))
+		force_angle_front = GetAngle(f_front.ravel(), np.array([0, 0]))
+
+		# print(f_hind[1, 0], f_front[1, 0])
+
+		# print(force_angle_hind*180/np.pi, force_angle_front*180/np.pi)
 
 		torque_from_hind  = EE_hind@f_hind
 		torque_from_front = EE_front@f_front
