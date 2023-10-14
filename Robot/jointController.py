@@ -19,7 +19,9 @@ class JointController:
 		self.current_angle = self.joint.angle
 		error = desired_angle - self.current_angle
 
+
 		val = self.P*error + self.D*(error - self.prev_error) + self.I*self.error_sum
+		# print(error, val)
 		# print(self.joint.motorSpeed, self.joint.speed)
 
 

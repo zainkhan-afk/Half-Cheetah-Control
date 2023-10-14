@@ -9,6 +9,7 @@ from .kinematics import BodyKinematics
 from .state import State
 
 from .Dynamics import QuadrupedDynamics
+from gait import Gait
 
 
 class Cheetah:
@@ -42,14 +43,14 @@ class Cheetah:
 		self.shin_front = LegSegment(sim_handle, self.front_leg_shin_pos, angle, self.leg_width, self.leg_segment_length, group_index = -1)
 		self.shin_hind = LegSegment(sim_handle, self.hind_leg_shin_pos, angle, self.leg_width, self.leg_segment_length, group_index = -1)
 
-		# body_world_joint = sim_handle.world.CreateRevoluteJoint(
-		# 							bodyA = ground.body,
-		# 							bodyB = self.torso.body,
-		# 							anchor = position,
-		# 							maxMotorTorque = 100.0,
-		# 							motorSpeed = 0.0,
-		# 							enableMotor = True,
-		# 							)
+		body_world_joint = sim_handle.world.CreateRevoluteJoint(
+									bodyA = ground.body,
+									bodyB = self.torso.body,
+									anchor = position,
+									maxMotorTorque = 100.0,
+									motorSpeed = 0.0,
+									enableMotor = True,
+									)
 
 		self.front_thigh_joint = sim_handle.world.CreateRevoluteJoint(
 									bodyA = self.torso.body,
@@ -104,6 +105,7 @@ class Cheetah:
 							angle, 0, 0,
 							np.array([hind_theta_thigh, hind_theta_shin, front_theta_thigh, front_theta_shin]), 
 							np.array([0, 0, 0, 0]), np.array([0, 0, 0, 0]))
+		self.gait = Gait(Tg = 10)
 
 
 	def SetUpRobotDynamics(self):
@@ -212,81 +214,30 @@ class Cheetah:
 		self.leg_hind.SetAngles(hind_leg_theta)
 		self.leg_front.SetAngles(front_leg_theta)
 
+	def Walk(self, t):
+		hind_leg_pos, front_leg_pos = self.gait.GetLegPosition(t, None)
+		
+		if hind_leg_pos is not None:
+			x, y = hind_leg_pos
+			x = 0
+			self.leg_hind.MoveTo(np.array([x, y]))
+			
+		else:
+			if self.gait.last_leg_pos_hind is not None:
+				x, y = self.gait.last_leg_pos_hind
+				x = 0
+				self.leg_hind.MoveTo(np.array([x, y]))		
 
-	def ApplyForceToLegs(self, forces):
-		self.dynamicsModel.CalculateCompositeRigidBodyInertiaWRTFloatingBase()
+		if front_leg_pos is not None:
+			x, y = front_leg_pos
+			x = 0
+			self.leg_front.MoveTo(np.array([x, y]))
 
-		hind_theta_thigh, hind_theta_shin = self.leg_hind.GetAngles()
-		front_theta_thigh, front_theta_shin = self.leg_front.GetAngles()
-
-		body_position = self.torso.GetPosition()
-		body_angle = self.torso.body.angle
-
-		body_position = np.array([body_position[0], body_position[1]])
-
-		self.state = self.state.UpdateUsingJointTheta(np.array([hind_theta_thigh, hind_theta_shin, front_theta_thigh, front_theta_shin]))
-		self.state = self.state.UpdateUsingPosition(body_position)
-		self.state = self.state.UpdateUsingBodyTheta(body_angle)
-
-
-
-		hind_ee_pos  = self.leg_hind.GetEEFKPosition()
-		front_ee_pos = self.leg_front.GetEEFKPosition()
-
-		hind_base_T_hind_ee = GetTransformationMatrix(0, hind_ee_pos[0, 0], hind_ee_pos[1, 0])
-		front_base_T_front_ee = GetTransformationMatrix(0, front_ee_pos[0, 0], front_ee_pos[1, 0])
-
-		COM_T_hind_base = GetTransformationMatrix(0, self.leg_hind_pos[0], self.leg_hind_pos[1])
-		COM_T_front_base = GetTransformationMatrix(0, self.leg_front_pos[0], self.leg_front_pos[1])
-
-		world_T_COM = GetTransformationMatrix(self.state.body_theta, self.state.position[0], self.state.position[1])
-
-
-		COM_T_hind_ee = COM_T_hind_base@hind_base_T_hind_ee
-		COM_T_front_ee = COM_T_front_base@front_base_T_front_ee
-
-		world_T_hind_ee = world_T_COM@COM_T_hind_ee
-		world_T_front_ee = world_T_COM@COM_T_front_ee
-
-		hind_ee_pos_wrt_world = np.array([[world_T_hind_ee[0, -1], world_T_hind_ee[1, -1]]]).T
-		front_ee_pos_wrt_world = np.array([[world_T_front_ee[0, -1], world_T_front_ee[1, -1]]]).T
-
-		hind_ee_pos_wrt_FB = np.array([[COM_T_hind_ee[0, -1], COM_T_hind_ee[1, -1]]]).T
-		front_ee_pos_wrt_FB = np.array([[COM_T_front_ee[0, -1], COM_T_front_ee[1, -1]]]).T
-
-		# print(hind_ee_pos_wrt_FB.ravel(), front_ee_pos_wrt_FB.ravel())
-
-		hind_J  = self.leg_hind.GetJacobian(hind_theta_thigh, hind_theta_shin)
-		front_J = self.leg_front.GetJacobian(front_theta_thigh, front_theta_shin)
-
-		body_J  = self.body_kine_model.GetJacobian(hind_ee_pos_wrt_FB, front_ee_pos_wrt_FB)
-
-		jacobian = np.zeros((7, 4))
-
-		jacobian[:3,   :]   = body_J
-		jacobian[3:5, :2]   = hind_J
-		jacobian[5: , 2:]   = front_J
-
-		theta_double_dot, self.old_torques = self.dynamicsModel.ForwardDynamics(forces, jacobian, self.state)
-
-
-		body_acc = theta_double_dot[:2, 0]
-		body_theta_double_dot = theta_double_dot[2, 0]
-		joint_theta_double_dot = theta_double_dot[3:, 0]
-
-		self.state = self.state.UpdateUsingJointThetaDoubleDot(joint_theta_double_dot)
-		self.state = self.state.UpdateUsingAcceleration(body_acc)
-		self.state = self.state.UpdateUsingBodyThetaDoubleDot(body_theta_double_dot)
-
-
-		hind_leg_theta = self.state.joint_theta[:2]
-		front_leg_theta = self.state.joint_theta[2:]
-
-		self.leg_hind.SetAngles(hind_leg_theta)
-		self.leg_front.SetAngles(front_leg_theta)
-
-		print(self.state)
-
+		else:
+			if self.gait.last_leg_pos_front is not None:
+				x, y = self.gait.last_leg_pos_front
+				x = 0
+				self.leg_front.MoveTo(np.array([x, y]))
 
 
 	def Render(self, screen, PPM):
