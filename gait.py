@@ -18,13 +18,16 @@ class Gait:
 										[0.5, 1.0]
 								   ])
 
-		self.gait_matrix = np.array([
-										[0, 0.5],
-										[0, 0.5]
-								   ])
+		# self.gait_matrix = np.array([
+		# 								[0, 0.5],
+		# 								[0, 0.5]
+		# 						   ])
 
 		self.m = 0
 		self.l = 0
+
+		self.last_leg_pos_hind = None
+		self.last_leg_pos_front = None
 
 	def FindLegPos(self, t_norm, step_size, leg_index, height_offset):
 		leg_pos = None
@@ -37,7 +40,11 @@ class Gait:
 			# x = t_norm/2 * step_size
 			y = np.sqrt((1 - (x**2)/((step_size/2)**2))*self.step_height**2)
 			leg_pos = [x, y + height_offset]
-			print(x, y + height_offset)
+
+			if leg_index == 0:
+				self.last_leg_pos_hind = leg_pos
+			else:
+				self.last_leg_pos_front = leg_pos
 
 		elif t_norm >	self.gait_matrix[leg_index, 1]:
 			leg_pos = None
@@ -45,13 +52,12 @@ class Gait:
 		return leg_pos
 
 	def GetLegPosition(self, t, leg_positions, height_offset = -0.2):
-		if t>self.Tg:
-			return None, None
 		gait_cycle_t = t - self.Tg*int(t/self.Tg)
 		t_norm = gait_cycle_t / self.Tg
 		step_size = self.max_step_size
 
 		hind_leg_pos = self.FindLegPos(t_norm, step_size, 0, height_offset)
 		front_leg_pos = self.FindLegPos(t_norm, step_size, 1, height_offset)
+
 
 		return hind_leg_pos, front_leg_pos

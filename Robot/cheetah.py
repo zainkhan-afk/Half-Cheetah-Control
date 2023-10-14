@@ -105,7 +105,7 @@ class Cheetah:
 							angle, 0, 0,
 							np.array([hind_theta_thigh, hind_theta_shin, front_theta_thigh, front_theta_shin]), 
 							np.array([0, 0, 0, 0]), np.array([0, 0, 0, 0]))
-		self.gait = Gait(Tg = 0.5)
+		self.gait = Gait(Tg = 10)
 
 
 	def SetUpRobotDynamics(self):
@@ -221,11 +221,23 @@ class Cheetah:
 			x, y = hind_leg_pos
 			x = 0
 			self.leg_hind.MoveTo(np.array([x, y]))
+			
+		else:
+			if self.gait.last_leg_pos_hind is not None:
+				x, y = self.gait.last_leg_pos_hind
+				x = 0
+				self.leg_hind.MoveTo(np.array([x, y]))		
 
 		if front_leg_pos is not None:
 			x, y = front_leg_pos
 			x = 0
 			self.leg_front.MoveTo(np.array([x, y]))
+
+		else:
+			if self.gait.last_leg_pos_front is not None:
+				x, y = self.gait.last_leg_pos_front
+				x = 0
+				self.leg_front.MoveTo(np.array([x, y]))
 
 
 	def Render(self, screen, PPM):
