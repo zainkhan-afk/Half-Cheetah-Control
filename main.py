@@ -52,27 +52,33 @@ cheetah.UpdateState()
 print("State Updated")
 
 ang = 0
-y = 2.41
-x = 2.51
+new_state = None
+x = 0.84676296
+y = 0.53007615
 t = 0
 while True:
 	cheetah.UpdateState()
-	cheetah.Walk(t)
-	# current_state = cheetah.GetState()
-	# J = cheetah.GetJacobian()
 
-	# current_pos = current_state.position
-	# # print(current_pos)
-	# current_body_theta = current_state.body_theta
-	# goal_pos = np.array([x + 0.05*np.cos(ang), y + 0.05*np.sin(ang)])
-	# goal_body_theta = current_body_theta
+	if new_state is not None:
+		error_state = cheetah.CalculateStateError(new_state)
+		# error_state = current_state - new_state
+		print("Difference between the predicted state and the actual state")
+		print(error_state)
+
+	# cheetah.Walk(t)
+	current_state = cheetah.GetState()
+	J = cheetah.GetJacobian()
+
+	current_pos = current_state.position
+	current_body_theta = current_state.body_theta
+	goal_pos = np.array([x + 0.05*np.cos(ang), y + 0.05*np.sin(ang)])
+	goal_body_theta = current_body_theta
 	# goal_pos = current_pos
+	# goal_body_theta = np.pi/36*np.sin(ang)
 
-	# hind_leg_pos, front_leg_pos = gait.GetLegPosition(t, None)
-	# print(hind_leg_pos, front_leg_pos)
 
-	# new_state = pid_controller.Solve(current_state, J, current_pos, current_body_theta, goal_pos, goal_body_theta)
-	# cheetah.ApplyState(new_state)
+	new_state = pid_controller.Solve(current_state, J, current_pos, current_body_theta, goal_pos, goal_body_theta)
+	cheetah.ApplyState(new_state)
 
 	ret = sim.Step()
 	ang += 0.0025
