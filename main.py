@@ -61,7 +61,7 @@ while True:
 
 	if new_state is not None:
 		error_state = cheetah.CalculateStateError(new_state)
-		error_state = current_state - new_state
+		# error_state = current_state - new_state
 		print("Difference between the predicted state and the actual state")
 		print(error_state)
 

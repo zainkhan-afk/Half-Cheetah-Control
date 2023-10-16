@@ -65,19 +65,16 @@ class QuadrupedDynamics:
 
 		EE_hind = np.array([[jacobian_body[2, 0], jacobian_body[2, 1]]])
 		EE_front  = np.array([[jacobian_body[2, 2], jacobian_body[2, 3]]])
-		f_hind = np.array([[forces[0, 0], forces[1, 0]]]).T
-		f_front  = np.array([[forces[2, 0], forces[3, 0]]]).T
+		
+		f_hind = np.array([[forces[0, 0], forces[1, 0]]])
+		f_front  = np.array([[forces[2, 0], forces[3, 0]]])
 
 
 		force_angle_hind  = GetAngle(f_hind.ravel(), np.array([0, 0]))
 		force_angle_front = GetAngle(f_front.ravel(), np.array([0, 0]))
 
-		# print(f_hind[1, 0], f_front[1, 0])
-
-		# print(force_angle_hind*180/np.pi, force_angle_front*180/np.pi)
-
-		torque_from_hind  = EE_hind@f_hind
-		torque_from_front = EE_front@f_front
+		torque_from_hind = np.cross(EE_hind, f_hind)[0]
+		torque_from_front = np.cross(EE_front, f_front)[0]
 
 		forces_body = jacobian_body@forces
 		torque_legs = jacobian_legs.T@forces
@@ -85,21 +82,13 @@ class QuadrupedDynamics:
 		resultant_torques = np.zeros((7, 1))
 		resultant_torques[:3, :] = forces_body
 		resultant_torques[3:, :] = torque_legs
-
-		# print(torque_from_front + torque_from_hind)
-		# print(resultant_torques)
-
-		# jacobian_force_result_legs       = jacobian_legs.T@forces
-		# jacobian_force_result[2, 0] = torque_from_front + torque_from_hind
+		resultant_torques[2, 0] = torque_from_front + torque_from_hind
 
 		joint_torques = resultant_torques[3:, :]
 
 		M_inv = GetInverseMatrix(M)
 
 		theta_double_dot = M_inv@(resultant_torques - C - G)
-
-		# print(theta_double_dot)
-		# print(selection_vector)
 
 		return theta_double_dot, joint_torques
 

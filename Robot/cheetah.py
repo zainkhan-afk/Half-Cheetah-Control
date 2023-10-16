@@ -197,7 +197,7 @@ class Cheetah:
 		hind_J  = self.leg_hind.GetJacobian(hind_theta_thigh, hind_theta_shin)
 		front_J = self.leg_front.GetJacobian(front_theta_thigh, front_theta_shin)
 
-		body_J  = self.body_kine_model.GetJacobian(hind_ee_pos_wrt_world, front_ee_pos_wrt_world)
+		# body_J  = self.body_kine_model.GetJacobian(hind_ee_pos_wrt_world, front_ee_pos_wrt_world)
 		body_J  = self.body_kine_model.GetJacobian(hind_ee_pos_wrt_FB, front_ee_pos_wrt_FB)
 
 		jacobian = np.zeros((7, 4))
