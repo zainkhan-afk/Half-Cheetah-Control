@@ -81,8 +81,8 @@ class QuadrupedDynamics:
 
 		resultant_torques = np.zeros((7, 1))
 		resultant_torques[:3, :] = forces_body
-		resultant_torques[3:, :] = torque_legs
 		resultant_torques[2, 0] = torque_from_front + torque_from_hind
+		resultant_torques[3:, :] = torque_legs
 
 		joint_torques = resultant_torques[3:, :]
 
@@ -99,15 +99,6 @@ class QuadrupedDynamics:
 		M[:3, :3] = self.composite_inertia
 		M[3:5, 3:5] = self.legs["hind"].GetMassMatrix(state)
 		M[5:, 5:] = self.legs["front"].GetMassMatrix(state)
-		# print()
-		# for r in range(M.shape[0]):
-		# 	for c in range(M.shape[1]):
-		# 		if abs(M[r, c])>0:
-		# 			val = round(M[r, c], 5)
-		# 		else:
-		# 			val = "0.0000"
-		# 		print(f"{val}", end=" ")
-		# 	print()
 
 		return M
 
@@ -117,16 +108,6 @@ class QuadrupedDynamics:
 		C[3:5] = self.legs["hind"].GetCoriolisMatrix(state)
 		C[5: ] = self.legs["front"].GetCoriolisMatrix(state)
 
-		# print()
-		# for r in range(C.shape[0]):
-		# 	for c in range(C.shape[1]):
-		# 		if abs(C[r, c])>0:
-		# 			val = round(C[r, c], 10)
-		# 		else:
-		# 			val = "0.0000"
-		# 		print(f"{val}", end=" ")
-		# 	print()
-
 		return C
 
 	def GetGravityMatrix(self, state):
@@ -134,15 +115,5 @@ class QuadrupedDynamics:
 		G[ :3] = self.floating_base.GetGravityMatrix()
 		G[3:5] = self.legs["hind"].GetGravityMatrix(state)
 		G[5: ] = self.legs["front"].GetGravityMatrix(state)
-
-		# print()
-		# for r in range(G.shape[0]):
-		# 	for c in range(G.shape[1]):
-		# 		if abs(G[r, c])>0:
-		# 			val = round(G[r, c], 10)
-		# 		else:
-		# 			val = "0.0000"
-		# 		print(f"{val}", end=" ")
-		# 	print()
 
 		return G
