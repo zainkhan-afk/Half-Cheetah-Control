@@ -19,7 +19,7 @@ ground = Ground(sim)
 cheetah = Cheetah(sim, ground, position = np.array([1, 0.8]), angle  = 0)
 traj = Trajectory(size = 500)
 
-pid_controller = PID(cheetah.dynamicsModel, cheetah.leg_hind_pos, cheetah.leg_front_pos, P = 250, I = 1, D = 10)
+pid_controller = PID(cheetah.dynamicsModel, cheetah.leg_hind_pos, cheetah.leg_front_pos, P = 500, I = 0.001, D = 10)
 
 
 num_pts = 500
@@ -53,8 +53,11 @@ print("State Updated")
 
 ang = 0
 new_state = None
-x = 0.84676296
+x = 0.87
 y = 0.53007615
+
+# x = 1.0
+# y = 0.8
 t = 0
 while True:
 	cheetah.UpdateState()
@@ -71,10 +74,16 @@ while True:
 
 	current_pos = current_state.position
 	current_body_theta = current_state.body_theta
-	goal_pos = np.array([x + 0.05*np.cos(ang), y + 0.05*np.sin(ang)])
+	goal_pos = np.array([x + 0.1*np.cos(ang), y + 0.1*np.sin(ang)])
+	# goal_pos = np.array([x, y])
 	goal_body_theta = current_body_theta
-	# goal_pos = current_pos
-	# goal_body_theta = np.pi/36*np.sin(ang)
+	# goal_body_theta = np.pi/18*np.sin(ang)
+
+	print()
+	print("Current State")
+	print(current_state)
+	print("New State")
+	print(new_state)
 
 
 	new_state = pid_controller.Solve(current_state, J, current_pos, current_body_theta, goal_pos, goal_body_theta)
