@@ -25,6 +25,12 @@ class QuadrupedDynamics:
 		link = LegSegment(link_object)
 		self.links.append(link)
 
+	def CalculateCompositeRigidBodyInertia(self):
+		self.composite_inertia = np.zeros((3, 3))
+		
+		for link in self.links:
+			self.composite_inertia += link.GetSpatialInertia()
+
 	def CalculateCompositeRigidBodyInertiaWRTWorld(self):
 		self.composite_inertia = np.zeros((3, 3))
 		

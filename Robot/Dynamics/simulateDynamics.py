@@ -5,8 +5,9 @@ class SimulateDynamics:
 		self.robotDynamicsModel = robotDynamicsModel
 
 	def GoToNextStateFD(self, force, J, current_state):
-		# self.robotDynamicsModel.CalculateCompositeRigidBodyInertiaWRTWorld()
-		self.robotDynamicsModel.CalculateCompositeRigidBodyInertiaWRTFloatingBase()
+		self.robotDynamicsModel.CalculateCompositeRigidBodyInertiaWRTWorld()
+		# self.robotDynamicsModel.CalculateCompositeRigidBodyInertiaWRTFloatingBase()
+		# self.robotDynamicsModel.CalculateCompositeRigidBodyInertia()
 		
 		theta_double_dot, self.old_torques = self.robotDynamicsModel.ForwardDynamics(force, J, current_state)
 
