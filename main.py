@@ -74,16 +74,16 @@ while True:
 
 	current_pos = current_state.position
 	current_body_theta = current_state.body_theta
-	goal_pos = np.array([x + 0.1*np.cos(ang), y + 0.1*np.sin(ang)])
+	goal_pos = np.array([x + 0.0*np.cos(ang), y + 0.1*np.sin(ang)])
 	# goal_pos = np.array([x, y])
 	goal_body_theta = current_body_theta
 	# goal_body_theta = np.pi/18*np.sin(ang)
 
-	print()
-	print("Current State")
-	print(current_state)
-	print("New State")
-	print(new_state)
+	# print()
+	# print("Current State")
+	# print(current_state)
+	# print("New State")
+	# print(new_state)
 
 
 	new_state = pid_controller.Solve(current_state, J, current_pos, current_body_theta, goal_pos, goal_body_theta)
